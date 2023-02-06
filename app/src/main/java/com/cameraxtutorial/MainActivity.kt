@@ -6,6 +6,9 @@ import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
@@ -42,6 +45,7 @@ class MainActivity : AppCompatActivity() {
                 ).show()
             }
         }
+    val selectedNumber = arrayOf("1", "2", "3", "4")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -73,6 +77,19 @@ class MainActivity : AppCompatActivity() {
         binding.galleryBtn.setOnClickListener {
             val intent = Intent(this, GalleryActivity::class.java)
             startActivity(intent)
+        }
+
+        val spinner = binding.spinner
+        val ArrayAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, selectedNumber)
+        spinner.adapter = ArrayAdapter
+        spinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener{
+            override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
+                Toast.makeText(applicationContext, "Wybrana ilosc to: " + selectedNumber[p2], Toast.LENGTH_SHORT).show()
+            }
+
+            override fun onNothingSelected(p0: AdapterView<*>?) {
+                TODO("Not yet implemented")
+            }
         }
 
     }
