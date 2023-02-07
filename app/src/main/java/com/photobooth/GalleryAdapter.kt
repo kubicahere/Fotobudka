@@ -1,10 +1,10 @@
-package com.cameraxtutorial
+package com.photobooth
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.cameraxtutorial.databinding.ListItemImgBinding
+import com.photobooth.databinding.ListItemImgBinding
 import java.io.File
 
 class GalleryAdapter(private val fileArray: Array<File>) :

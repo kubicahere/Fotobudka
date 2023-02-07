@@ -1,9 +1,8 @@
-package com.cameraxtutorial
+package com.photobooth
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
-import com.cameraxtutorial.databinding.ActivityGalleryBinding
+import com.photobooth.databinding.ActivityGalleryBinding
 import java.io.File
 
 class GalleryActivity : AppCompatActivity() {

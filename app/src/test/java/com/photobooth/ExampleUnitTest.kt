@@ -1,4 +1,4 @@
-package com.cameraxtutorial
+package com.photobooth
 
 import org.junit.Test
 
