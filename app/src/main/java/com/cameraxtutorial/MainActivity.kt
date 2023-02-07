@@ -59,8 +59,25 @@ class MainActivity : AppCompatActivity() {
 
         cameraPermissionResult.launch(android.Manifest.permission.CAMERA)
 
+        val spinner = binding.spinner
+        val ArrayAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, selectedNumber)
+        spinner.adapter = ArrayAdapter
+        spinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener{
+            override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
+                Toast.makeText(applicationContext, "Wybrana ilosc to: " + selectedNumber[p2], Toast.LENGTH_SHORT).show()
+            }
+
+            override fun onNothingSelected(p0: AdapterView<*>?) {
+                TODO("Not yet implemented")
+            }
+        }
+
         binding.imgCaptureBtn.setOnClickListener {
-            takePhoto()
+
+            for(i in 0..spinner.selectedItemPosition)   //doing photo n times where n is selected from spinner
+            {
+                takePhoto()
+            }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 animateFlash()
             }
@@ -79,18 +96,7 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        val spinner = binding.spinner
-        val ArrayAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, selectedNumber)
-        spinner.adapter = ArrayAdapter
-        spinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener{
-            override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
-                Toast.makeText(applicationContext, "Wybrana ilosc to: " + selectedNumber[p2], Toast.LENGTH_SHORT).show()
-            }
 
-            override fun onNothingSelected(p0: AdapterView<*>?) {
-                TODO("Not yet implemented")
-            }
-        }
 
     }
 
