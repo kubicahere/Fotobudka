@@ -46,6 +46,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
     val selectedNumber = arrayOf("1", "2", "3", "4")
+    var isActualTaking = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,7 +66,7 @@ class MainActivity : AppCompatActivity() {
         spinner.adapter = ArrayAdapter
         spinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener{
             override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
-                Toast.makeText(applicationContext, "Wybrana ilosc to: " + selectedNumber[p2], Toast.LENGTH_SHORT).show()
+                //Toast.makeText(applicationContext, "Wybrana ilosc to: " + selectedNumber[p2], Toast.LENGTH_SHORT).show()
             }
 
             override fun onNothingSelected(p0: AdapterView<*>?) {
@@ -74,14 +75,22 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.imgCaptureBtn.setOnClickListener {
+            if(isActualTaking){
+                Toast.makeText(applicationContext, "Aktualnie trwa sesja zdjęciowa", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            isActualTaking = true
+            Thread{
+                for(i in 0..spinner.selectedItemPosition){
+                    Thread.sleep(5000)
+                    takePhoto()
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        animateFlash()
+                    }
+                }
+                isActualTaking = false;
+            }.start()
 
-            for(i in 0..spinner.selectedItemPosition)   //doing photo n times where n is selected from spinner
-            {
-                takePhoto()
-            }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                animateFlash()
-            }
         }
 
         binding.switchBtn.setOnClickListener {
