@@ -1,8 +1,10 @@
 package com.photobooth
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import android.media.MediaActionSound
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -20,12 +22,13 @@ import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
-import com.photobooth.databinding.ActivityMainBinding
 import com.google.android.material.snackbar.Snackbar
 import com.google.common.util.concurrent.ListenableFuture
+import com.photobooth.databinding.ActivityMainBinding
 import java.io.File
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -45,9 +48,14 @@ class MainActivity : AppCompatActivity() {
                 ).show()
             }
         }
-    val selectedNumber = arrayOf("1", "2", "3", "4")
-    var isActualTaking = false
+    private val selectedNumber = arrayOf("1", "2", "3", "4")
+    private val selectedSeconds = arrayOf("2 sekundy", "3 sekundy", "4 sekundy", "5 sekund")
+    private var isActualTaking = false
+    private var time:Long = 2;
+    private val sound = MediaActionSound()
+    private var mToast: Toast? = null
 
+    @SuppressLint("ShowToast")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -73,27 +81,70 @@ class MainActivity : AppCompatActivity() {
                 TODO("Not yet implemented")
             }
         }
+        val spinner2 = binding.spinner2
+        val ArrAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, selectedSeconds)
+        spinner2.adapter = ArrAdapter
+        spinner2.onItemSelectedListener = object:AdapterView.OnItemSelectedListener{
+            override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
+                //Toast.makeText(applicationContext, "Wybrana ilosc to: " + selectedNumber[p2], Toast.LENGTH_SHORT).show()
+                time = selectedSeconds[p2].subSequence(0,1).toString().toLong()
+            }
+
+            override fun onNothingSelected(p0: AdapterView<*>?) {
+                TODO("Not yet implemented")
+            }
+        }
+
 
         binding.imgCaptureBtn.setOnClickListener {
             if(isActualTaking){
                 Toast.makeText(applicationContext, "Aktualnie trwa sesja zdjęciowa", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
+            //Toast.makeText(applicationContext, "${time.toString().toLong()}", Toast.LENGTH_SHORT).show()
             isActualTaking = true
+            sound.play(MediaActionSound.START_VIDEO_RECORDING)
+
             Thread{
                 for(i in 0..spinner.selectedItemPosition){
-                    Thread.sleep(5000)
-                    takePhoto()
+
+                    //Thread.sleep(time * 1000)         // tu wersja bez odliczania
+
+                    // tu z odliczaniem co sekunde
+                    for(i in time-1 downTo 0){
+                        Thread.sleep(1000)
+                        sound.play(MediaActionSound.FOCUS_COMPLETE)
+
+                        //tu toast, co pokazuje ile czasu do zdjecia, jak zbedne to do usuniecia
+                        this@MainActivity.runOnUiThread(Runnable {
+                            if(mToast != null){
+                                mToast?.cancel()
+                            }
+                            mToast = Toast.makeText(applicationContext, "${i + 1}", Toast.LENGTH_SHORT)
+                            mToast?.show()
+                        })
+                    }
+
+                    Thread.sleep(1000)
+
+                    sound.play(MediaActionSound.SHUTTER_CLICK)
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                         animateFlash()
                     }
+                    takePhoto()
                 }
                 isActualTaking = false;
+                Thread.sleep(1000)
+                sound.play(MediaActionSound.STOP_VIDEO_RECORDING)
             }.start()
 
         }
 
         binding.switchBtn.setOnClickListener {
+            if(isActualTaking){
+                Toast.makeText(applicationContext, "Aktualnie trwa sesja zdjęciowa", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
             cameraSelector = if (cameraSelector == CameraSelector.DEFAULT_BACK_CAMERA) {
                 CameraSelector.DEFAULT_FRONT_CAMERA
             } else {
@@ -102,6 +153,10 @@ class MainActivity : AppCompatActivity() {
             startCamera()
         }
         binding.galleryBtn.setOnClickListener {
+            if(isActualTaking){
+                Toast.makeText(applicationContext, "Aktualnie trwa sesja zdjęciowa", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
             val intent = Intent(this, GalleryActivity::class.java)
             startActivity(intent)
         }
